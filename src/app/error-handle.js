@@ -11,6 +11,14 @@ const errorHandler = (error, ctx) => {
       status = 404
       body = '用户名不存在'
       break
+    case errorTypes.UNAUTHORIZATION:
+      status = 404
+      body = '无效的token'
+      break
+    case errorTypes.USERNAME_ALREADY_EXISTS:
+      status = 404
+      body = '用户名已存在'
+      break
     default:
       status = 404
       body = 'NOT FOUND!'

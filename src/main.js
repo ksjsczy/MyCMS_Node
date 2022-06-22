@@ -8,6 +8,9 @@ app.use(bodyParser())
 const loginRouter = require('./router/login.router')
 app.use(loginRouter.routes())
 app.use(loginRouter.allowedMethods())
+const usersRouter = require('./router/users.router')
+app.use(usersRouter.routes())
+app.use(usersRouter.allowedMethods())
 
 app.on('error', errorHandler)
 app.listen(config.APP_PORT, () => {

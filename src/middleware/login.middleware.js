@@ -1,6 +1,8 @@
 const errorTypes = require('../constants/error-types')
 const usersService = require('../service/users.service')
 const md5password = require('../utils/password-handle')
+const jwt = require('jsonwebtoken')
+const { PUBLIC_KEY } = require('../app/config')
 
 const verifyLogin = async (ctx, next) => {
   //获取登陆时的用户名和密码
@@ -25,9 +27,33 @@ const verifyLogin = async (ctx, next) => {
   }
 
   //用户名和密码校验通过
+  ctx.user = user
   await next()
 }
 
+const verifyAuth = async (ctx, next) => {
+  //1.获取token
+  const authorization = ctx.headers.authorization
+  if (!authorization) {
+    const error = new Error(errorTypes.UNAUTHORIZATION)
+    return ctx.app.emit('error', error, ctx)
+  }
+  const token = authorization.slice(7)
+
+  //2.验证token，拿到(id/name/iat/exp)
+  try {
+    const result = jwt.verify(token, PUBLIC_KEY, {
+      algorithms: ['RS256']
+    })
+    ctx.user = result;
+    await next();
+  } catch (err) {
+    const error = new Error(errorTypes.UNAUTHORIZATION)
+    return ctx.app.emit('error', error, ctx)
+  }
+}
+
 module.exports = {
-  verifyLogin
+  verifyLogin,
+  verifyAuth
 }

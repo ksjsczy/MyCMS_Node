@@ -1,15 +1,22 @@
-const usersService = require('../service/users.service')
-
+const jwt = require('jsonwebtoken')
+const { PRIVATE_KEY } = require('../app/config')
 class LoginController {
   async login(ctx, next) {
     //获取用户请求传递的参数
-    // const { name, password } = ctx.request.body
+    const { id, name } = ctx.user
 
-    //查询数据
-
+    const token = jwt.sign({ id, name }, PRIVATE_KEY, {
+      expiresIn: 60 * 60 * 24,
+      algorithm: 'RS256'
+    })
 
     //返回数据
-    ctx.body = ctx.request.body
+    ctx.body = {}
+    ctx.body.data = {
+      id,
+      name,
+      token
+    }
   }
 }
 
