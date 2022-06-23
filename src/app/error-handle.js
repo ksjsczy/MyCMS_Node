@@ -19,6 +19,14 @@ const errorHandler = (error, ctx) => {
       status = 404
       body = '用户名已存在'
       break
+    case errorTypes.DEPARTMENT_ALREADY_EXISTS:
+      status = 404
+      body = '部门已存在'
+      break
+    case errorTypes.MENU_ALREADY_EXISTS:
+      status = 404
+      body = '菜单已存在'
+      break
     default:
       status = 404
       body = 'NOT FOUND!'

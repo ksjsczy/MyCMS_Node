@@ -1,6 +1,6 @@
 const pool = require('../app/database')
 const md5password = require('../utils/password-handle')
-class LoginService {
+class UsersService {
   async getUserByName(name) {
     const statement = `SELECT * FROM users WHERE name = ?;`
     const result = await pool.execute(statement, [name])
@@ -26,6 +26,18 @@ class LoginService {
       await pool.execute(statement, [key !== 'password' ? editInfo[key] : md5password(editInfo[key]), id])
     }
   }
+
+  async searchUser(id) {
+    const statement = `SELECT * FROM users WHERE id = ?;`
+    const result = await pool.execute(statement, [id])
+    return result[0][0]
+  }
+
+  async searchUserList(offset, limit) {
+    const statement = `SELECT * FROM users LIMIT ?, ?;`
+    const result = await pool.execute(statement, [offset + '', limit + ''])
+    return result[0]
+  }
 }
 
-module.exports = new LoginService()
+module.exports = new UsersService()
