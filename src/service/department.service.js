@@ -37,9 +37,21 @@ class DepartmentService {
   }
 
   async searchDepartmentList(offset, limit) {
-    const statement = `SELECT * FROM department LIMIT ?, ?;`
-    const result = await pool.execute(statement, [offset + '', limit + ''])
-    return result[0]
+    if (!offset || !limit) {
+      const statement = `SELECT * FROM department;`
+      const result = await pool.execute(statement, [])
+      return result[0]
+    } else {
+      const statement = `SELECT * FROM department LIMIT ?, ?;`
+      const result = await pool.execute(statement, [offset + '', limit + ''])
+      return result[0]
+    }
+  }
+
+  async getDepartmentLength() {
+    const statement = `SELECT COUNT(*) FROM department;`
+    const length = await pool.execute(statement, [])
+    return length[0].pop()['COUNT(*)']
   }
 }
 

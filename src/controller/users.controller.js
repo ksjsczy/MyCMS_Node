@@ -57,7 +57,7 @@ class UsersController {
 
     //2.查询用户列表
     const listResult = await usersService.searchUserList(offset, size)
-    const totalCount = listResult.length
+    const totalCount = await usersService.getUsersLength()
     ctx.body = {
       data: {
         list: listResult,

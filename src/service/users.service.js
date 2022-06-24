@@ -28,15 +28,32 @@ class UsersService {
   }
 
   async searchUser(id) {
-    const statement = `SELECT * FROM users WHERE id = ?;`
+    const statement = ` SELECT users.id, users.name, users.realname, users.cellphone, users.enable, users.createAt, users.updateAt, 
+                            JSON_OBJECT('id',role.id,'name',role.name,'intro',role.intro,'createAt',role.createAt,'updateAt',role.updateAt) as role,
+                            JSON_OBJECT('id',department.id,'name',department.name,'parentId',department.parentId,'createAt',department.createAt,'updateAt',department.updateAt,'leader',department.leader) as department
+                        FROM users LEFT JOIN department ON users.departmentId = department.id 
+                                   LEFT JOIN role ON users.roleId = role.id
+                        WHERE users.id=1;`
     const result = await pool.execute(statement, [id])
     return result[0][0]
   }
 
   async searchUserList(offset, limit) {
-    const statement = `SELECT * FROM users LIMIT ?, ?;`
-    const result = await pool.execute(statement, [offset + '', limit + ''])
-    return result[0]
+    if (!offset || !limit) {
+      const statement = `SELECT * FROM users;`
+      const result = await pool.execute(statement, [])
+      return result[0]
+    } else {
+      const statement = `SELECT * FROM users LIMIT ?, ?;`
+      const result = await pool.execute(statement, [offset + '', limit + ''])
+      return result[0]
+    }
+  }
+
+  async getUsersLength() {
+    const statement = `SELECT COUNT(*) FROM users;`
+    const length = await pool.execute(statement, [])
+    return length[0].pop()['COUNT(*)']
   }
 }
 

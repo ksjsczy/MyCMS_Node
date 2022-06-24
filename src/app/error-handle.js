@@ -27,6 +27,14 @@ const errorHandler = (error, ctx) => {
       status = 404
       body = '菜单已存在'
       break
+    case errorTypes.ROLE_ALREADY_EXISTS:
+      status = 404
+      body = '角色已存在'
+      break
+    case errorTypes.GOODS_ALREADY_EXISTS:
+      status = 404
+      body = '商品信息已存在'
+      break
     default:
       status = 404
       body = 'NOT FOUND!'

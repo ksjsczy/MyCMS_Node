@@ -57,7 +57,7 @@ class DepartmentController {
 
     //2.查询部门列表
     const listResult = await departmentService.searchDepartmentList(offset, size)
-    const totalCount = listResult.length
+    const totalCount = await departmentService.getDepartmentLength()
     ctx.body = {
       data: {
         list: listResult,

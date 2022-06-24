@@ -9,6 +9,7 @@ const errorHandler = require('./app/error-handle')
 const bodyParser = require('koa-bodyparser')
 app.use(bodyParser())
 
+//解决跨域问题
 const cors = require('koa2-cors')
 app.use(cors())
 

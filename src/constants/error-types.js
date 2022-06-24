@@ -4,6 +4,8 @@ const UNAUTHORIZATION = 'unauthorization'
 const USERNAME_ALREADY_EXISTS = 'username already exists'
 const DEPARTMENT_ALREADY_EXISTS = 'department already exists'
 const MENU_ALREADY_EXISTS = 'menu already exists'
+const ROLE_ALREADY_EXISTS = 'role already exists'
+const GOODS_ALREADY_EXISTS = 'goods already exists'
 
 module.exports = {
   USERNAME_OR_PASSWORD_IS_WRONG,
@@ -11,5 +13,7 @@ module.exports = {
   UNAUTHORIZATION,
   USERNAME_ALREADY_EXISTS,
   DEPARTMENT_ALREADY_EXISTS,
-  MENU_ALREADY_EXISTS
+  MENU_ALREADY_EXISTS,
+  ROLE_ALREADY_EXISTS,
+  GOODS_ALREADY_EXISTS
 }

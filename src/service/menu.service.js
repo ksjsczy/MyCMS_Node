@@ -1,4 +1,5 @@
 const pool = require('../app/database')
+const menuStructured = require('../utils/menuStructured')
 class MenuService {
   async getMenuByName(name) {
     const statement = `SELECT * FROM menu WHERE name = ?;`
@@ -39,7 +40,23 @@ VALUES (?,?,?,?,?); `
   async searchMenuList() {
     const statement = `SELECT * FROM menu;`
     const result = await pool.execute(statement, [])
-    return result[0]
+    return menuStructured(result[0])
+  }
+
+  async mapIdToMenu(menuList) {
+    const menuIds = menuList.split(',').sort((a, b) => parseInt(a) - parseInt(b))
+    const list = []
+    for (const id of menuIds) {
+      const menu = await this.searchMenu(id)
+      list.push(menu)
+    }
+    return menuStructured(list)
+  }
+
+  async getMenuLength() {
+    const statement = `SELECT COUNT(*) FROM menu;`
+    const length = await pool.execute(statement, [])
+    return length[0].pop()['COUNT(*)']
   }
 }
 
