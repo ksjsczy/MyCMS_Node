@@ -43,7 +43,6 @@ class UsersController {
   async searchUser(ctx, next) {
     //1.获取需要查找的用户id
     const { id } = ctx.params
-
     //2.查询用户
     const result = await usersService.searchUser(id)
     ctx.body = {
@@ -53,11 +52,12 @@ class UsersController {
 
   async searchUserList(ctx, next) {
     //1.获取查询的offset和limit
-    const { offset, size } = ctx.request.body
+    // const { offset, size } = ctx.request.body
 
     //2.查询用户列表
-    const listResult = await usersService.searchUserList(offset, size)
-    const totalCount = await usersService.getUsersLength()
+    //定义获取数据总数的方法的标志
+    const listResult = await usersService.searchUserList(ctx.request.body)
+    const { totalCount } = listResult
     ctx.body = {
       data: {
         list: listResult,

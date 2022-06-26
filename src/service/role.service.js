@@ -8,11 +8,11 @@ class RoleService {
   }
 
   async createRole(roleInfo) {
-    const statement = `INSERT INTO role (name, parentId, leader )
-VALUES (?,?,?); `
-    const { name, parentId, leader } = roleInfo
+    const statement = `INSERT INTO role (name, intro, menuList )
+                                  VALUES (?,?,?); `
+    const { name, intro, menuList } = roleInfo
     try {
-      await pool.execute(statement, [name, parentId, leader])
+      await pool.execute(statement, [name, intro, menuList.join(',')])
     } catch (error) {
       console.log(error);
     }
@@ -24,6 +24,7 @@ VALUES (?,?,?); `
   }
 
   async editRole(id, editInfo) {
+    editInfo.menuList = editInfo.menuList.join(',')
     let statement = ''
     for (const key in editInfo) {
       statement = `UPDATE role SET ${key} = ? WHERE id = ?;`
@@ -37,20 +38,48 @@ VALUES (?,?,?); `
     return result[0][0]
   }
 
-  async searchRoleList(offset, limit) {
-    let result
-    if (!offset || !limit) {
-      const statement = `SELECT * FROM role;`
-      result = await pool.execute(statement, [])
-    } else {
-      const statement = `SELECT * FROM role LIMIT ?, ?;`
-      result = await pool.execute(statement, [offset + '', limit + ''])
+  async searchRoleList(requestParams) {
+    const searchColumns = ['name', 'intro', 'createAt']
+    //处理搜索关键字
+    for (const key of searchColumns) {
+      if (requestParams[key] !== undefined && requestParams[key] !== null) {
+        //如果不是空值
+        requestParams[key] = '%' + requestParams[key] + '%'
+      } else {
+        //如果是空值
+        requestParams[key] = '%'
+      }
     }
+    //拿到请求的参数
+    let { name, intro, createAt, offset, size: limit } = requestParams
+    if (createAt.length <= 2) {
+      //如果没有选择创建的开始和结束时间，手动设置开始和结束时间
+      createAt = ['0000-01-01', '9999-01-01']
+    } else {
+      // 对开始和结束的时间进行处理
+      createAt = createAt.replace(/%/g, "").split(',')
+    }
+    //对offset和limit为空值的处理
+    if (!offset) offset = 0
+    if (!limit && limit !== 0) limit = 1000
+
+    const statement = `SELECT * FROM role  WHERE name LIKE ? AND intro LIKE ? AND createAt BETWEEN ? AND ? LIMIT ?, ?;`
+    const result = await pool.execute(statement, [name, intro, createAt[0], createAt[1], offset + '', limit + ''])
+
     const roleResult = result[0]
     for (const role of roleResult) {
       role.menuList = await menuService.mapIdToMenu(role.menuList)
     }
+
+    const statement2 = `SELECT * FROM role  WHERE name LIKE ? AND intro LIKE ? AND createAt BETWEEN ? AND ?;`
+    const length = await pool.execute(statement2, [name, intro, createAt[0], createAt[1]])
+    roleResult.totalCount = length[0].pop()['COUNT(*)']
     return roleResult
+  }
+
+  async searchRoleMenuListIds(id) {
+    const result = await this.searchRole(id)
+    return result.menuList
   }
 
   async searchRoleMenuList(id) {

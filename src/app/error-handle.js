@@ -35,6 +35,14 @@ const errorHandler = (error, ctx) => {
       status = 404
       body = '商品信息已存在'
       break
+    case errorTypes.CATEGORY_ALREADY_EXISTS:
+      status = 404
+      body = '商品分类已存在'
+      break
+    case errorTypes.NO_PERMISSION:
+      status = 404
+      body = '没有权限'
+      break
     default:
       status = 404
       body = 'NOT FOUND!'

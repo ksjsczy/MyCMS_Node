@@ -1,8 +1,10 @@
 const errorTypes = require('../constants/error-types')
 const usersService = require('../service/users.service')
+const menuService = require('../service/menu.service')
 const md5password = require('../utils/password-handle')
 const jwt = require('jsonwebtoken')
 const { PUBLIC_KEY } = require('../app/config')
+const roleService = require('../service/role.service')
 
 const verifyLogin = async (ctx, next) => {
   //获取登陆时的用户名和密码
@@ -53,7 +55,34 @@ const verifyAuth = async (ctx, next) => {
   }
 }
 
+const verifyPermission = async (ctx, next) => {
+  //保存用户id
+  const { roleId } = ctx.user
+
+  //获取所有的权限列表，并从中查找所发出的http请求对应的权限
+  const permissions = await menuService.getMenuPermissions()
+  let item
+  const str = ctx.request.method + ctx.request.url
+  for (item of permissions) {
+    const patt = new RegExp(item.permissions)
+    if (str.match(patt) !== null) {
+      break
+    }
+  }
+  // //找到发出的http请求所对应的权限，查找role中的menuList，看是否有对应的权限
+  const menuList = await roleService.searchRoleMenuListIds(roleId)
+  // console.log(menuList, item.id);
+  if (menuList.split(',').includes(item.id + '')) {
+    //如果找到了对应权限.
+    await next()
+  } else {
+    //如果没找到对应权限，说明所登陆的用户没有该权限
+    const error = new Error(errorTypes.NO_PERMISSION)
+    ctx.app.emit('error', error, ctx)
+  }
+}
 module.exports = {
   verifyLogin,
-  verifyAuth
+  verifyAuth,
+  verifyPermission
 }

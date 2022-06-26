@@ -53,11 +53,11 @@ class DepartmentController {
 
   async searchDepartmentList(ctx, next) {
     //1.获取查询的offset和limit
-    const { offset, size } = ctx.request.body
+    // const { offset, size } = ctx.request.body
 
     //2.查询部门列表
-    const listResult = await departmentService.searchDepartmentList(offset, size)
-    const totalCount = await departmentService.getDepartmentLength()
+    const listResult = await departmentService.searchDepartmentList(ctx.request.body)
+    const { totalCount } = listResult
     ctx.body = {
       data: {
         list: listResult,

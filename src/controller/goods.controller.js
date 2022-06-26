@@ -53,11 +53,11 @@ class GoodsController {
 
   async searchGoodsList(ctx, next) {
     //1.获取查询的offset和limit
-    const { offset, size } = ctx.request.body
+    // const { offset, size } = ctx.request.body
 
     //2.查询商品信息列表
-    const listResult = await goodsService.searchGoodsList(offset, size)
-    const totalCount = await goodsService.getGoodsLength()
+    const listResult = await goodsService.searchGoodsList(ctx.request.body)
+    const { totalCount } = listResult
     ctx.body = {
       data: {
         list: listResult,

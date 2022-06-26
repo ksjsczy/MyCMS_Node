@@ -36,22 +36,38 @@ class DepartmentService {
     return result[0][0]
   }
 
-  async searchDepartmentList(offset, limit) {
-    if (!offset || !limit) {
-      const statement = `SELECT * FROM department;`
-      const result = await pool.execute(statement, [])
-      return result[0]
-    } else {
-      const statement = `SELECT * FROM department LIMIT ?, ?;`
-      const result = await pool.execute(statement, [offset + '', limit + ''])
-      return result[0]
+  async searchDepartmentList(requestParams) {
+    const searchColumns = ['name', 'leader', 'createAt']
+    //处理搜索关键字
+    for (const key of searchColumns) {
+      if (requestParams[key] !== undefined && requestParams[key] !== null) {
+        //如果不是空值
+        requestParams[key] = '%' + requestParams[key] + '%'
+      } else {
+        //如果是空值
+        requestParams[key] = '%'
+      }
     }
-  }
+    //拿到请求的参数
+    let { name, leader, createAt, offset, size: limit } = requestParams
+    if (createAt.length <= 2) {
+      //如果没有选择创建的开始和结束时间，手动设置开始和结束时间
+      createAt = ['0000-01-01', '9999-01-01']
+    } else {
+      // 对开始和结束的时间进行处理
+      createAt = createAt.replace(/%/g, "").split(',')
+    }
+    //对offset和limit为空值的处理
+    if (!offset) offset = 0
+    if (!limit && limit !== 0) limit = 1000
 
-  async getDepartmentLength() {
-    const statement = `SELECT COUNT(*) FROM department;`
-    const length = await pool.execute(statement, [])
-    return length[0].pop()['COUNT(*)']
+    const statement = `SELECT * FROM department  WHERE name LIKE ? AND leader LIKE ? AND createAt BETWEEN ? AND ? LIMIT ?, ?;`
+    const result = await pool.execute(statement, [name, leader, createAt[0], createAt[1], offset + '', limit + ''])
+
+    const statement2 = `SELECT COUNT(*) FROM department  WHERE name LIKE ? AND leader LIKE ? AND createAt BETWEEN ? AND ?;`
+    const length = await pool.execute(statement2, [name, leader, createAt[0], createAt[1]])
+    result[0].totalCount = length[0].pop()['COUNT(*)']
+    return result[0]
   }
 }
 

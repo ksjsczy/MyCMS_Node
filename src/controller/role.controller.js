@@ -53,11 +53,11 @@ class RoleController {
 
   async searchRoleList(ctx, next) {
     //1.获取查询的offset和limit
-    const { offset, size } = ctx.request.body
+    // const { offset, size } = ctx.request.body
 
     //2.查询角色列表
-    const listResult = await roleService.searchRoleList(offset, size)
-    const totalCount = listResult.length
+    const listResult = await roleService.searchRoleList(ctx.request.body)
+    const { totalCount } = listResult
     ctx.body = {
       data: {
         list: listResult,

@@ -58,6 +58,12 @@ VALUES (?,?,?,?,?); `
     const length = await pool.execute(statement, [])
     return length[0].pop()['COUNT(*)']
   }
+
+  async getMenuPermissions() {
+    const statement = `SELECT * FROM menu WHERE permissions IS NOT NULL;`
+    const permissionResult = await pool.execute(statement, [])
+    return permissionResult[0]
+  }
 }
 
 module.exports = new MenuService()
